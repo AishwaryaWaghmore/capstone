@@ -22,7 +22,6 @@ build/
 # Data
 *.csv
 *.zip
-processed_image/
 
 # macOS
 .DS_Store
