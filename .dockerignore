@@ -6,4 +6,5 @@ src/*.ipynb
 docs/
 images/
 related_doc/
+processed_image/
 .DS_Store
