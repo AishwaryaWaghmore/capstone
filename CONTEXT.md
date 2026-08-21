@@ -118,14 +118,34 @@ Demodicosis · Dermatitis · Fungal Infections · Hypersensitivity · Ringworm �
 
 | Model | Accuracy | Notes |
 |-------|----------|-------|
-| ResNet50 (image only) | 93.1% | 433 test images |
+| ResNet50 (image only) | **93.76%** | 433 test images — `src/resnet50.ipynb` |
 | SBERT + XGBoost (text only) | ~85–88% | Multi-variant evaluation |
 | **Late Fusion** | **97.2%** | Macro F1 = 0.96 |
+| EfficientNetV2B3 (Phase 3 benchmark) | 88.49% val (frozen, 10 epochs) | `src/effficientnetv2.ipynb` — in progress |
 
-- Demodicosis: F1 = **1.00** (perfect)
-- Ringworm: F1 = **0.98**
+### ResNet50 Per-Class Results (Final, 433 test images)
+
+| Class | Precision | Recall | F1 | Support |
+|-------|-----------|--------|-----|---------|
+| Dermatitis | 0.92 | 0.89 | 0.91 | 66 |
+| Fungal_infections | 0.90 | 0.87 | 0.89 | 54 |
+| Healthy | 0.92 | 0.96 | 0.94 | 69 |
+| Hypersensitivity | 0.87 | 0.90 | 0.88 | 29 |
+| demodicosis | 0.99 | 0.98 | **0.98** | 100 |
+| ringworm | 0.95 | 0.96 | 0.95 | 115 |
+| **macro avg** | **0.92** | **0.93** | **0.92** | 433 |
+| **weighted avg** | **0.94** | **0.94** | **0.94** | 433 |
+
+### ResNet50 Training Summary (3-stage fine-tuning)
+
+| Stage | Config | Train Acc | Val Acc | Test Acc |
+|-------|--------|-----------|---------|----------|
+| Stage 1 | Frozen base, Adam, 10 epochs | 87.99% | 86.40% | 91.22% |
+| Stage 2 | Last 30 layers unfrozen, lr=1e-5, 5 epochs | 90.04% | 88.37% | — |
+| Stage 3 | ModelCheckpoint, lr=1e-5, 10 epochs | 94.44% | 91.28% | **93.76%** |
+
 - Inference: < 1 second on standard laptop (image ~0.3s, SBERT ~50ms, XGBoost ~1ms)
-- Training: NVIDIA CUDA GPU; Inference: CPU-capable
+- Training: Windows 11, Python 3.11, TensorFlow/Keras (Renuka's machine)
 - Fixed seed: `SEED=42` for reproducibility
 
 ---
@@ -151,7 +171,16 @@ All tools are 100% open source — no licensing cost.
 
 ---
 
+## Source Code
+
+| File | Description |
+|------|-------------|
+| `src/resnet50.ipynb` | ResNet50 training — 3-stage fine-tuning, augmentation, confusion matrix, per-class report |
+| `src/effficientnetv2.ipynb` | EfficientNetV2B3 training — Phase 3 benchmarking comparison (in progress) |
+
 ## Datasets
+
+### External Datasets (Source)
 
 | Dataset | Source | Use |
 |---------|--------|-----|
@@ -162,7 +191,21 @@ All tools are 100% open source — no licensing cost.
 | Animal Veterinary Health Dataset | Kaggle (sathwiknomula) | Structured health records |
 | Dog Poop Dataset | Kaggle (wengjiyao) | Stool image classification |
 
-**Scale**: ~3,000–5,000 images; ~1,500–2,000 symptom text entries
+### processed_image/ — Actual Training Data (on disk)
+
+Split into `train/` / `valid/` / `test/` with 6 class subdirectories.
+
+| Class | Train | Valid | Test | Total |
+|-------|-------|-------|------|-------|
+| demodicosis | 588 | 174 | 100 | 862 |
+| Dermatitis | 546 | 175 | 66 | 787 |
+| Fungal_infections | 375 | 97 | 54 | 526 |
+| Healthy | 492 | 139 | 69 | 700 |
+| Hypersensitivity | 230 | 63 | 29 | 322 |
+| ringworm | 791 | 212 | 115 | 1118 |
+| **Total** | **3022** | **860** | **433** | **4315** |
+
+> Class imbalance: Hypersensitivity is the most underrepresented class (322 total, 29 test). Ringworm is the largest (1118 total). This should be addressed in Phase 3 fine-tuning.
 
 ---
 

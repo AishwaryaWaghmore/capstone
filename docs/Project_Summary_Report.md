@@ -200,20 +200,40 @@ User Input
 
 **Key results:**
 
-| Model | Accuracy |
-|-------|----------|
-| ResNet50 (image only) | 93.1% |
-| SBERT + XGBoost (text only) | ~85 – 88% |
-| **Late Fusion (combined)** | **97.2%** |
+| Model | Accuracy | Source |
+|-------|----------|--------|
+| ResNet50 (image only) | **93.76%** | `src/resnet50.ipynb` |
+| SBERT + XGBoost (text only) | ~85 – 88% | Multi-variant eval |
+| **Late Fusion (combined)** | **97.2%** | — |
+| EfficientNetV2B3 | 88.49% val (in progress) | `src/effficientnetv2.ipynb` |
 
-- Macro F1-score: **0.96**
-- Demodicosis class: F1 = **1.00** (perfect)
-- Ringworm class: F1 = **0.98**
+**ResNet50 per-class results (final, 433 test images):**
+
+| Class | Precision | Recall | F1 | Support |
+|-------|-----------|--------|-----|---------|
+| Dermatitis | 0.92 | 0.89 | 0.91 | 66 |
+| Fungal_infections | 0.90 | 0.87 | 0.89 | 54 |
+| Healthy | 0.92 | 0.96 | 0.94 | 69 |
+| Hypersensitivity | 0.87 | 0.90 | 0.88 | 29 |
+| demodicosis | 0.99 | 0.98 | **0.98** | 100 |
+| ringworm | 0.95 | 0.96 | 0.95 | 115 |
+| **macro avg** | **0.92** | **0.93** | **0.92** | 433 |
+
+**ResNet50 training (3 stages):**
+
+| Stage | Config | Train Acc | Val Acc | Test Acc |
+|-------|--------|-----------|---------|----------|
+| 1 | Frozen base, Adam, 10 epochs | 87.99% | 86.40% | 91.22% |
+| 2 | Last 30 layers unfrozen, lr=1e-5, 5 epochs | 90.04% | 88.37% | — |
+| 3 | ModelCheckpoint, lr=1e-5, 10 epochs | 94.44% | 91.28% | **93.76%** |
+
+- Late fusion macro F1-score: **0.96**
 - Test set: 433 images across 6 disease classes
 - Inference time: under 1 second on a standard laptop
+- Training environment: Windows 11, Python 3.11, TensorFlow/Keras
 
 **Model artifacts produced:**
-- `best_model.keras` — ResNet50 image classifier
+- `best_model.keras` — ResNet50 image classifier (stage 3, ModelCheckpoint)
 - `xgb_model.pkl` — XGBoost text classifier
 - `label_encoder.pkl` — class label encoder
 

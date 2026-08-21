@@ -32,3 +32,74 @@ Finally, multimodal datasets that pair both images and symptom descriptions toge
 ---
 
 > For full project context, architecture, results, and repository structure see [CONTEXT.md](CONTEXT.md).
+
+---
+
+## Running the Predictor (Docker — no local Python setup needed)
+
+Docker lets you run the model on any OS (Mac, Windows, Linux) without installing Python or any libraries.
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+
+### Step 1 — Build the image
+
+Run this once from the project root:
+
+```bash
+docker build -t dog-health-predictor .
+```
+
+This installs all dependencies and bakes the trained models into the image (~4–5 GB).
+
+### Step 2 — Run a prediction
+
+Provide a dog skin image and a plain-English symptom description.
+
+**Mac / Linux:**
+```bash
+docker run --rm -v /path/to/folder/with/image:/images dog-health-predictor \
+  --image /images/your_dog_photo.jpg \
+  --symptoms "dog is scratching, red patches on belly"
+```
+
+**Windows (PowerShell):**
+```powershell
+docker run --rm -v C:\path\to\folder\with\image:/images dog-health-predictor `
+  --image /images/your_dog_photo.jpg `
+  --symptoms "dog is scratching, red patches on belly"
+```
+
+- Replace the folder path with the directory containing your image.
+- Replace `your_dog_photo.jpg` with the actual filename (`.jpg` or `.jpeg` or `.png`).
+
+### Example output
+
+```
+====================================================
+  Predicted Disease : Dermatitis
+  Confidence        : 78.0%
+  Risk Level        : Medium
+  Recommendation    : Consult a vet. Avoid known allergens and use prescribed cream.
+====================================================
+
+Per-class probabilities (fused):
+  Dermatitis              78.0%  ███████████████████████
+  Healthy                 14.3%  ████
+  Fungal_infections        4.6%  █
+  ringworm                 1.8%
+  Hypersensitivity         0.9%
+  demodicosis              0.5%
+
+Image-only top guess : Dermatitis (74.4%)
+Text-only top guess  : Dermatitis (86.2%)
+```
+
+### Optional flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--image` | required | Path to the dog skin image inside the container |
+| `--symptoms` | required | Plain-English symptom description |
+| `--img_w` | `0.7` | Weight given to the image model (text weight = 1 − img_w) |

@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+processed_image/
+processed_image.zip
+src/*.ipynb
+docs/
+images/
+related_doc/
+.DS_Store
