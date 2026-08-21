@@ -1,0 +1,32 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model artifacts (large binary files — track with Git LFS or store externally)
+*.keras
+*.pkl
+*.h5
+*.pt
+*.pth
+
+# Data
+*.csv
+*.zip
+processed_image/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
